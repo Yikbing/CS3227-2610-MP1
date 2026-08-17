@@ -1,0 +1,36 @@
+.root {
+    -fx-background-color: #f4f7fb;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.title {
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #19324d;
+}
+
+.subtitle {
+    -fx-text-fill: #52677d;
+}
+
+.text-area, .text-field {
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 13px;
+}
+
+.text-area {
+    -fx-background-color: white;
+    -fx-border-color: #cbd6e2;
+    -fx-border-radius: 5px;
+}
+
+.button {
+    -fx-background-color: #246bce;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 18px;
+}
+
+.button:hover {
+    -fx-background-color: #1958ad;
+}
