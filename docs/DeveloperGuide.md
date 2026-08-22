@@ -15,7 +15,7 @@ The repository includes the Gradle Wrapper, so a separate Gradle installation is
 
 ### Running the application
 
- From the repository root, run:
+From the repository root, run:
 
 ```shell
 # Windows
@@ -200,38 +200,41 @@ The JUnit 5 tests under `src/test/java/studytracker` are grouped by the responsi
 
 ```text
 src/test/java/studytracker/
+|-- StudyTrackerTest.java
+|-- command/
+|   `-- CommandTest.java
 |-- model/
+|   |-- EditDescriptorTest.java
+|   |-- SessionListTest.java
+|   |-- StudySessionTest.java
+|   `-- StudyStatisticsTest.java
 |-- parser/
+|   `-- ParserTest.java
 `-- storage/
+    |-- SessionFileCodecTest.java
+    `-- StorageTest.java
 ```
 
-Storage tests use JUnit's `@TempDir`, so they operate on isolated temporary files rather than the user's real `data/sessions.txt`.
+Storage and coordinator integration tests use JUnit's `@TempDir`, so they operate on isolated temporary files rather than the user's real `data/sessions.txt`.
 
 ### Existing test coverage
 
 The current automated tests cover:
 
-- parser creation of a complete `AddCommand` and a partial `EditCommand`;
-- rejection of an invalid date and an edit without changes;
-- model editing that preserves unspecified fields;
-- rejection of an invalid session index;
-- statistics grouped by module;
-- a storage save-and-load round trip containing delimiters, tabs, and Unicode;
-- loading a missing file as an empty list.
+- model validation, normalisation, formatting, immutable views, edits, index boundaries, searching, filtering, and statistics;
+- successful, invalid, and boundary inputs for all nine command formats;
+- execution, feedback, model effects, and `CommandResult` flags for every command;
+- storage encoding, decoding, round trips, replacement, malformed records, and stable read/write failures; and
+- coordinator startup, load recovery, conditional saving, command failures, save failures, and restart persistence.
 
-These tests cover representative parser, model, and storage behavior, but they are not intended to claim exhaustive coverage.
+The suite is comprehensive against the documented non-UI behavior, but it is not intended to claim exhaustive testing of every possible input, operating system, or filesystem condition.
 
-### Important additional test areas
+### Testing strategy and exclusions
 
-Future tests should prioritise behavior at component boundaries and edge cases:
+The suite primarily uses black-box tests derived from documented behavior. Implementation-informed branch and boundary analysis supplements those tests where it exposes meaningful error paths. Tests interact through public class methods rather than calling private helpers directly.
 
-- case-insensitive `find` matches across module, topic, and notes;
-- combined filters, inclusive date boundaries, and newest-first ordering;
-- blank, duplicate, and command-inappropriate prefixes;
-- execution of mutating commands and their `dataChanged` results;
-- malformed or unsupported storage records;
-- coordinator behavior that saves mutations but not read-only operations;
-- startup behavior when loading fails;
-- clearing notes by supplying an empty `n/` value to `edit`.
+Equivalent inputs are grouped using parameterised tests and equivalence partitioning. Unit tests verify individual responsibilities, while command and `StudyTracker` integration tests verify component boundaries without repeating every lower-level assertion.
 
-The JavaFX interface is not covered by the current automated suite. After automated tests pass, a short manual smoke test can verify application startup, command submission, displayed feedback, and exit behavior.
+The JavaFX interface is verified using the [manual JavaFX test script](ManualUiTestScript.md). It covers application startup, Enter-key and button submission, displayed feedback, invalid-input recovery, persistence, malformed-data recovery, resizing, styling, and exit behavior. Automated JavaFX tests are intentionally excluded to avoid adding platform-sensitive UI-testing infrastructure to this introductory project.
+
+The fallback from an atomic file move to a normal replacement is also intentionally excluded from automated testing because reliably forcing that filesystem condition would be operating-system dependent or require production-code changes solely for failure injection.
